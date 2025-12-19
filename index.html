@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Amigo Oculto ✨</title>
+<style>
+  :root{
+    --bg1:#0b1220; --bg2:#111a2e;
+    --card: rgba(255,255,255,.06);
+    --card2: rgba(255,255,255,.08);
+    --stroke: rgba(255,255,255,.12);
+    --txt:#eaf0ff;
+    --muted: rgba(234,240,255,.72);
+    --accent:#7c3aed; /* roxo */
+    --accent2:#22c55e; /* verde */
+    --danger:#ef4444;
+    --warn:#f59e0b;
+    --shadow: 0 18px 60px rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; padding:18px;
+    font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial;
+    color: var(--txt);
+    background:
+      radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,.28), transparent 55%),
+      radial-gradient(900px 600px at 90% 25%, rgba(34,197,94,.20), transparent 55%),
+      linear-gradient(180deg, var(--bg1), var(--bg2));
+    min-height:100vh;
+  }
+
+  .wrap{max-width:980px; margin:0 auto;}
+  header{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:12px; margin-bottom:14px;
+  }
+  .brand{
+    display:flex; align-items:center; gap:10px;
+    font-weight:900; letter-spacing:.2px;
+  }
+  .logo{
+    width:40px;height:40px;border-radius:14px;
+    background: linear-gradient(135deg, rgba(124,58,237,1), rgba(34,197,94,1));
+    box-shadow: 0 14px 34px rgba(124,58,237,.35);
+    display:grid; place-items:center;
+  }
+  .logo span{filter: drop-shadow(0 8px 16px rgba(0,0,0,.35))}
+  .badge{
+    font-size:12px; padding:6px 10px; border-radius:999px;
+    background: rgba(255,255,255,.08);
+    border: 1px solid var(--stroke);
+    color: var(--muted);
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns: 1.15fr .85fr;
+    gap:14px;
+  }
+  @media (max-width: 860px){
+    .grid{grid-template-columns:1fr}
+  }
+
+  .card{
+    background: var(--card);
+    border: 1px solid var(--stroke);
+    border-radius: 18px;
+    padding: 14px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(10px);
+  }
+
+  h2{margin:0 0 8px; font-size:16px}
+  .sub{color:var(--muted); font-size:13px; margin-top:2px}
+  .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+  .row > *{flex:1}
+  .row .tight{flex:0 0 auto}
+
+  input, button{
+    font-size:16px;
+    border-radius: 14px;
+    padding: 11px 12px;
+    border: 1px solid var(--stroke);
+    background: rgba(255,255,255,.06);
+    color: var(--txt);
+    outline:none;
+  }
+  input::placeholder{color: rgba(234,240,255,.45)}
+  input:focus{border-color: rgba(124,58,237,.55); box-shadow: 0 0 0 4px rgba(124,58,237,.18);}
+
+  .btn{
+    cursor:pointer;
+    font-weight:850;
+    letter-spacing:.2px;
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    transition: transform .06s ease, background .2s ease, border-color .2s ease;
+    user-select:none;
+  }
+  .btn:active{transform: scale(.99)}
+  .btn-primary{
+    background: linear-gradient(135deg, rgba(124,58,237,.92), rgba(124,58,237,.55));
+    border-color: rgba(124,58,237,.55);
+  }
+  .btn-green{
+    background: linear-gradient(135deg, rgba(34,197,94,.92), rgba(34,197,94,.50));
+    border-color: rgba(34,197,94,.55);
+  }
+  .btn-danger{
+    background: linear-gradient(135deg, rgba(239,68,68,.92), rgba(239,68,68,.50));
+    border-color: rgba(239,68,68,.55);
+  }
+  .btn-ghost{
+    background: rgba(255,255,255,.05);
+  }
+  .btn[disabled]{opacity:.55; cursor:not-allowed}
+
+  .divider{height:1px; background: rgba(255,255,255,.10); margin:12px 0}
+
+  /* Chips (botões de nomes) */
+  .chips{display:flex; flex-wrap:wrap; gap:10px; margin-top:10px}
+  .chip{
+    padding:10px 12px;
+    border-radius: 999px;
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(255,255,255,.06);
+    cursor:pointer;
+    display:flex; align-items:center; gap:10px;
+    max-width: 100%;
+  }
+  .chip strong{font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width: 220px;}
+  .chip small{font-size:12px; color: var(--muted)}
+  .chip.selected{
+    border-color: rgba(124,58,237,.60);
+    background: rgba(124,58,237,.18);
+    box-shadow: 0 0 0 4px rgba(124,58,237,.14);
+  }
+  .chip.done{
+    border-color: rgba(34,197,94,.45);
+    background: rgba(34,197,94,.14);
+  }
+  .chip .miniBtn{
+    border:none; background: transparent; color: rgba(234,240,255,.85);
+    padding:6px 8px; border-radius: 10px; cursor:pointer;
+  }
+  .chip .miniBtn:hover{background: rgba(255,255,255,.07)}
+  .chip .miniBtn.del{color: rgba(239,68,68,.92)}
+  .chip .miniBtn.edit{color: rgba(245,158,11,.95)}
+
+  /* Área do sorteio / “tchannn” */
+  .stage{
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,.12);
+    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+    padding: 14px;
+    position: relative;
+    overflow:hidden;
+  }
+  .stage::before{
+    content:"";
+    position:absolute; inset:-40% -20%;
+    background: radial-gradient(circle at 30% 30%, rgba(124,58,237,.26), transparent 55%),
+                radial-gradient(circle at 70% 45%, rgba(34,197,94,.22), transparent 55%);
+    filter: blur(12px);
+  }
+  .stage > *{position:relative}
+
+  .wheel{
+    display:flex; align-items:center; justify-content:center;
+    height: 92px;
+    margin: 10px 0 8px;
+  }
+  .slot{
+    width: 92px; height: 92px; border-radius: 26px;
+    background: rgba(17,24,39,.65);
+    border: 1px solid rgba(255,255,255,.12);
+    display:grid; place-items:center;
+    box-shadow: 0 18px 40px rgba(0,0,0,.35);
+    font-size: 44px;
+    transition: transform .12s ease;
+  }
+  .rolling .slot{animation: wobble .18s ease-in-out infinite alternate;}
+  @keyframes wobble{
+    from{transform: rotate(-2deg) scale(1.01)}
+    to{transform: rotate(2deg) scale(1.03)}
+  }
+  .hint{
+    text-align:center; color: var(--muted);
+    font-size: 13px;
+  }
+
+  .result{
+    margin-top: 10px;
+    padding: 14px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,.12);
+    background: rgba(255,255,255,.05);
+    min-height: 72px;
+  }
+  .result.ok{border-color: rgba(34,197,94,.40); background: rgba(34,197,94,.10)}
+  .result.bad{border-color: rgba(239,68,68,.45); background: rgba(239,68,68,.10)}
+
+  /* confetti */
+  .confetti{ position:absolute; inset:0; pointer-events:none; overflow:hidden;}
+  .confetti i{
+    position:absolute; width:10px; height:16px; border-radius:4px;
+    opacity:.95;
+    animation: fall 1100ms linear forwards;
+  }
+  @keyframes fall{
+    to{ transform: translateY(120vh) rotate(520deg); opacity: .95;}
+  }
+
+  .kpi{
+    display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;
+  }
+  .kpi .box{
+    flex:1;
+    border-radius: 16px;
+    padding:10px 12px;
+    border:1px solid rgba(255,255,255,.12);
+    background: rgba(255,255,255,.05);
+    min-width: 140px;
+  }
+  .kpi .box b{display:block; font-size:18px}
+  .kpi .box span{color: var(--muted); font-size:12px}
+
+  .toast{
+    margin-top:10px; color: var(--muted); font-size:13px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="logo"><span>🎁</span></div>
+      <div>
+        <div style="font-size:18px">Amigo Oculto</div>
+        <div class="sub">bonitinho • offline • no celular</div>
+      </div>
+    </div>
+    <div class="badge" id="status">sem sorteio</div>
+  </header>
+
+  <div class="grid">
+
+    <!-- PARTICIPANTES -->
+    <section class="card">
+      <h2>👥 Participantes</h2>
+      <div class="sub">Toque num nome para selecionar “quem você é”. Use ✏️ para editar e 🗑️ para excluir.</div>
+
+      <div class="divider"></div>
+
+      <div class="row">
+        <input id="novoNome" placeholder="Digite um nome e toque em Adicionar"/>
+        <button class="btn btn-primary tight" style="min-width:140px" onclick="adicionar()">➕ Adicionar</button>
+      </div>
+
+      <div class="toast" id="msg"></div>
+
+      <div class="chips" id="chips"></div>
+
+      <div class="divider"></div>
+
+      <div class="row">
+        <button class="btn btn-ghost" onclick="carregarExemplo()">✨ Carregar lista exemplo</button>
+        <button class="btn btn-danger" onclick="limparTudo()">🧨 Resetar tudo</button>
+      </div>
+
+      <div class="kpi">
+        <div class="box"><b id="kTotal">0</b><span>participantes</span></div>
+        <div class="box"><b id="kRevelou">0</b><span>já revelaram</span></div>
+      </div>
+    </section>
+
+    <!-- SORTEIO / REVELAÇÃO -->
+    <section class="card">
+      <h2>🎲 Sorteio & Revelação</h2>
+      <div class="sub">Primeiro gere o sorteio. Depois cada pessoa seleciona seu nome e revela.</div>
+
+      <div class="divider"></div>
+
+      <div class="stage" id="stage">
+        <div class="confetti" id="confetti"></div>
+
+        <div class="row">
+          <button class="btn btn-green" id="btnGerar" onclick="gerar()">🎰 GERAR SORTEIO (tchannn)</button>
+        </div>
+
+        <div class="wheel" id="wheel">
+          <div class="slot" id="slot">✨</div>
+        </div>
+        <div class="hint" id="hint">Selecione seu nome nos botões e toque em “REVELAR”.</div>
+
+        <div class="divider"></div>
+
+        <div class="row">
+          <button class="btn btn-primary" id="btnRevelar" onclick="revelar()" disabled>👀 REVELAR</button>
+          <button class="btn btn-ghost" id="btnOcultar" onclick="ocultar()" disabled>🧼 OCULTAR / PRÓXIMO</button>
+        </div>
+
+        <div class="result" id="resultado">Aguardando…</div>
+      </div>
+
+      <div class="toast">
+        Dica: depois que a pessoa ver, manda ela memorizar/printar e você clica em <b>OCULTAR</b>.
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script>
+  // Estado
+  let names = [];
+  let selected = null;
+  let pairs = {};
+  let revealed = new Set();
+  let drawReady = false;
+
+  const faces = ["🎁","✨","🎄","🎅","🧦","🦌","🍬","⭐","🔔","🎀"];
+  const statusEl = document.getElementById("status");
+  const chipsEl = document.getElementById("chips");
+  const msgEl = document.getElementById("msg");
+  const slotEl = document.getElementById("slot");
+  const wheelEl = document.getElementById("wheel");
+  const hintEl = document.getElementById("hint");
+  const resEl = document.getElementById("resultado");
+  const btnRevelar = document.getElementById("btnRevelar");
+  const btnOcultar = document.getElementById("btnOcultar");
+  const btnGerar = document.getElementById("btnGerar");
+
+  const kTotal = document.getElementById("kTotal");
+  const kRevelou = document.getElementById("kRevelou");
+
+  function toast(text){
+    msgEl.textContent = text || "";
+    if(text){
+      setTimeout(()=>{ if(msgEl.textContent === text) msgEl.textContent=""; }, 2200);
+    }
+  }
+
+  function updateKPIs(){
+    kTotal.textContent = names.length;
+    kRevelou.textContent = revealed.size;
+  }
+
+  function setStatus(text){
+    statusEl.textContent = text;
+  }
+
+  function render(){
+    chipsEl.innerHTML = "";
+    names.forEach((n)=>{
+      const chip = document.createElement("div");
+      chip.className = "chip" +
+        (n === selected ? " selected":"") +
+        (revealed.has(n) ? " done":"");
+
+      const left = document.createElement("div");
+      left.style.display="flex";
+      left.style.flexDirection="column";
+      left.style.gap="2px";
+
+      const strong = document.createElement("strong");
+      strong.textContent = n;
+
+      const small = document.createElement("small");
+      small.textContent = revealed.has(n) ? "já revelou ✅" : "toque para selecionar";
+
+      left.appendChild(strong);
+      left.appendChild(small);
+
+      const actions = document.createElement("div");
+      actions.style.display="flex";
+      actions.style.gap="2px";
+      actions.style.marginLeft="8px";
+
+      const edit = document.createElement("button");
+      edit.className = "miniBtn edit";
+      edit.type = "button";
+      edit.textContent = "✏️";
+      edit.title = "Editar";
+      edit.onclick = (e)=>{ e.stopPropagation(); editar(n); };
+
+      const del = document.createElement("button");
+      del.className = "miniBtn del";
+      del.type = "button";
+      del.textContent = "🗑️";
+      del.title = "Excluir";
+      del.onclick = (e)=>{ e.stopPropagation(); excluir(n); };
+
+      actions.appendChild(edit);
+      actions.appendChild(del);
+
+      chip.appendChild(left);
+      chip.appendChild(actions);
+
+      chip.onclick = ()=> selecionar(n);
+      chipsEl.appendChild(chip);
+    });
+
+    btnRevelar.disabled = !(drawReady && selected);
+    btnOcultar.disabled = !drawReady;
+
+    updateKPIs();
+  }
+
+  function selecionar(n){
+    selected = (selected === n ? null : n);
+    resEl.className = "result";
+    resEl.textContent = drawReady ? "Pronto. Toque em REVELAR." : "Aguardando gerar o sorteio…";
+    render();
+  }
+
+  function adicionar(){
+    const v = document.getElementById("novoNome").value.trim();
+    if(!v) return toast("Digite um nome 🙂");
+    if(names.some(x=>x.toLowerCase() === v.toLowerCase())) return toast("Esse nome já existe.");
+    names.push(v);
+    document.getElementById("novoNome").value = "";
+    // se já tinha sorteio, invalida (porque mudou a lista)
+    if(drawReady){
+      drawReady = false; pairs = {}; revealed = new Set(); selected=null;
+      setStatus("sem sorteio");
+      resEl.className="result";
+      resEl.textContent="Lista mudou. Gere o sorteio de novo.";
+    }
+    render();
+  }
+
+  function editar(oldName){
+    const novo = prompt("Editar nome:", oldName);
+    if(novo === null) return;
+    const v = novo.trim();
+    if(!v) return toast("Nome vazio não vale.");
+    if(names.some(x=>x !== oldName && x.toLowerCase() === v.toLowerCase())) return toast("Já existe outro igual.");
+    names = names.map(x => x===oldName ? v : x);
+
+    // atualizar seleção
+    if(selected === oldName) selected = v;
+
+    // se já tinha sorteio, invalida (para não dar bug)
+    if(drawReady){
+      drawReady = false; pairs = {}; revealed = new Set(); selected=null;
+      setStatus("sem sorteio");
+      resEl.className="result";
+      resEl.textContent="Lista mudou. Gere o sorteio de novo.";
+    }
+    render();
+  }
+
+  function excluir(n){
+    if(!confirm(`Excluir "${n}"?`)) return;
+    names = names.filter(x=>x!==n);
+    if(selected === n) selected = null;
+
+    if(drawReady){
+      drawReady = false; pairs = {}; revealed = new Set(); selected=null;
+      setStatus("sem sorteio");
+      resEl.className="result";
+      resEl.textContent="Lista mudou. Gere o sorteio de novo.";
+    }
+    render();
+  }
+
+  function limparTudo(){
+    if(!confirm("Tem certeza? Isso apaga lista e sorteio.")) return;
+    names = [];
+    selected = null;
+    pairs = {};
+    revealed = new Set();
+    drawReady = false;
+    setStatus("sem sorteio");
+    resEl.className="result";
+    resEl.textContent="Aguardando…";
+    render();
+  }
+
+  function carregarExemplo(){
+    names = [
+      "Ernandes (filho)","Seu Ernandes (pai)","Dona Elza","Bárbara","Sara","Davi",
+      "Ana Luiza","Juliana","Daniel","Théo","Elen","Álvaro","Sueli","Ferraz","Bia","Stefan"
+    ];
+    selected = null;
+    pairs = {};
+    revealed = new Set();
+    drawReady = false;
+    setStatus("sem sorteio");
+    resEl.className="result";
+    resEl.textContent="Lista carregada. Gere o sorteio.";
+    render();
+  }
+
+  function makeDerangement(list){
+    for(let t=0;t<6000;t++){
+      const s = [...list].sort(()=>Math.random()-0.5);
+      let ok = true;
+      for(let i=0;i<list.length;i++){
+        if(list[i] === s[i]) { ok=false; break; }
+      }
+      if(ok) return s;
+    }
+    return null;
+  }
+
+  function confettiBoom(){
+    const host = document.getElementById("confetti");
+    host.innerHTML="";
+    const colors = ["#a78bfa","#34d399","#fbbf24","#60a5fa","#fb7185","#f472b6"];
+    const count = 26;
+    for(let i=0;i<count;i++){
+      const p = document.createElement("i");
+      p.style.left = (Math.random()*100) + "vw";
+      p.style.top = (-10 - Math.random()*30) + "px";
+      p.style.background = colors[Math.floor(Math.random()*colors.length)];
+      p.style.transform = `translateY(0) rotate(${Math.random()*120}deg)`;
+      p.style.animationDuration = (850 + Math.random()*650) + "ms";
+      p.style.width = (8 + Math.random()*8) + "px";
+      p.style.height = (10 + Math.random()*14) + "px";
+      host.appendChild(p);
+    }
+    setTimeout(()=>{ host.innerHTML=""; }, 1500);
+  }
+
+  async function rollAnimation(){
+    wheelEl.classList.add("rolling");
+    let i=0;
+    const timer = setInterval(()=>{
+      slotEl.textContent = faces[i % faces.length];
+      i++;
+    }, 75);
+    await new Promise(r=>setTimeout(r, 1100));
+    clearInterval(timer);
+    wheelEl.classList.remove("rolling");
+    slotEl.textContent = "🎁";
+  }
+
+  async function gerar(){
+    if(names.length < 2) return toast("Coloque pelo menos 2 participantes.");
+    btnGerar.disabled = true;
+    setStatus("sorteando...");
+    resEl.className="result";
+    resEl.textContent="Tchannn… sorteando!";
+    await rollAnimation();
+
+    const der = makeDerangement(names);
+    if(!der){
+      btnGerar.disabled = false;
+      setStatus("falhou");
+      resEl.className="result bad";
+      resEl.textContent="Não consegui sortear sem alguém tirar a si mesmo. Tente de novo.";
+      return;
+    }
+
+    pairs = {};
+    names.forEach((n,idx)=> pairs[n] = der[idx]);
+
+    drawReady = true;
+    revealed = new Set();
+    selected = null;
+
+    setStatus("feito ✅");
+    hintEl.textContent = "Selecione seu nome nos botões e toque em “REVELAR”.";
+    resEl.className="result";
+    resEl.textContent="Sorteio pronto. Agora é sua vez 🙂";
+    confettiBoom();
+
+    btnGerar.disabled = false;
+    render();
+  }
+
+  function revelar(){
+    if(!drawReady){
+      resEl.className="result bad";
+      resEl.textContent="Faça o sorteio primeiro.";
+      return;
+    }
+    if(!selected){
+      resEl.className="result bad";
+      resEl.textContent="Selecione seu nome nos botões.";
+      return;
+    }
+    if(revealed.has(selected)){
+      resEl.className="result bad";
+      resEl.textContent="Esse nome já revelou ✅ (se precisar, gere um novo sorteio, mas muda tudo).";
+      return;
+    }
+
+    const amigo = pairs[selected];
+    resEl.className="result ok";
+    resEl.innerHTML = `<b>${selected}</b>, seu amigo oculto é:<br><br>🎁 <span style="font-size:20px;font-weight:900">${amigo}</span>`;
+    revealed.add(selected);
+    confettiBoom();
+    render();
+  }
+
+  function ocultar(){
+    resEl.className="result";
+    resEl.textContent = "Oculto. Próxima pessoa: selecione seu nome e revele.";
+    selected = null;
+    render();
+  }
+
+  // Inicial
+  carregarExemplo();
+</script>
+</body>
+</html>
