@@ -1,536 +1,646 @@
 <!doctype html>
 <html lang="pt-br">
 <head>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#7c3aed">
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Sorteando! ✨</title>
+<style>
+  :root{
+    --bg1:#0b1220; --bg2:#111a2e;
+    --card: rgba(255,255,255,.06);
+    --stroke: rgba(255,255,255,.12);
+    --txt:#eaf0ff;
+    --muted: rgba(234,240,255,.72);
+    --accent:#7c3aed;
+    --accent2:#22c55e;
+    --danger:#ef4444;
+    --warn:#f59e0b;
+    --shadow: 0 18px 60px rgba(0,0,0,.35);
+  }
 
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#7c3aed">
+  *{box-sizing:border-box}
+  body{
+    margin:0; padding:18px;
+    font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial;
+    color: var(--txt);
+    background:
+      radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,.28), transparent 55%),
+      radial-gradient(900px 600px at 90% 25%, rgba(34,197,94,.20), transparent 55%),
+      linear-gradient(180deg, var(--bg1), var(--bg2));
+    min-height:100vh;
+  }
 
-  <style>
-    :root{
-      --bg1:#0b1220; --bg2:#111a2e;
-      --card: rgba(255,255,255,.06);
-      --stroke: rgba(255,255,255,.12);
-      --txt:#eaf0ff;
-      --muted: rgba(234,240,255,.72);
-      --accent:#7c3aed;
-      --accent2:#22c55e;
-      --danger:#ef4444;
-      --warn:#f59e0b;
-      --shadow: 0 18px 60px rgba(0,0,0,.35);
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0; padding:18px;
-      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial;
-      color: var(--txt);
-      background:
-        radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,.28), transparent 55%),
-        radial-gradient(900px 600px at 90% 25%, rgba(34,197,94,.20), transparent 55%),
-        linear-gradient(180deg, var(--bg1), var(--bg2));
-      min-height:100vh;
-    }
-    .wrap{max-width:1050px;margin:0 auto;}
-    header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;}
-    .brand{display:flex;align-items:center;gap:10px;font-weight:900;}
-    .logo{
-      width:40px;height:40px;border-radius:14px;
-      background: linear-gradient(135deg, rgba(124,58,237,1), rgba(34,197,94,1));
-      box-shadow: 0 14px 34px rgba(124,58,237,.35);
-      display:grid; place-items:center;
-    }
-    .badge{
-      font-size:12px; padding:6px 10px; border-radius:999px;
-      background: rgba(255,255,255,.08);
-      border: 1px solid var(--stroke);
-      color: var(--muted);
-    }
-    .grid{display:grid;grid-template-columns: 1.2fr .8fr;gap:14px;}
-    @media (max-width: 920px){ .grid{grid-template-columns:1fr} }
-    .card{
-      background: var(--card);
-      border:1px solid var(--stroke);
-      border-radius:18px;
-      padding:14px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
-    }
-    h2{margin:0 0 8px;font-size:16px}
-    .sub{color:var(--muted);font-size:13px;margin-top:2px}
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .row > *{flex:1}
-    .row .tight{flex:0 0 auto}
-    input, button, select{
-      font-size:16px;
-      border-radius:14px;
-      padding:11px 12px;
-      border:1px solid var(--stroke);
-      background: rgba(255,255,255,.06);
-      color: var(--txt);
-      outline:none;
-    }
-    input::placeholder{color: rgba(234,240,255,.45)}
-    .btn{cursor:pointer;font-weight:850;display:flex;align-items:center;justify-content:center;gap:10px;user-select:none}
-    .btn:active{transform:scale(.99)}
-    .btn-primary{background: linear-gradient(135deg, rgba(124,58,237,.92), rgba(124,58,237,.55)); border-color: rgba(124,58,237,.55);}
-    .btn-green{background: linear-gradient(135deg, rgba(34,197,94,.92), rgba(34,197,94,.50)); border-color: rgba(34,197,94,.55);}
-    .btn-danger{background: linear-gradient(135deg, rgba(239,68,68,.92), rgba(239,68,68,.50)); border-color: rgba(239,68,68,.55);}
-    .btn-ghost{background: rgba(255,255,255,.05);}
-    .btn[disabled]{opacity:.55;cursor:not-allowed}
-    .divider{height:1px;background: rgba(255,255,255,.10);margin:12px 0}
+  .wrap{max-width:980px; margin:0 auto;}
+  header{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:12px; margin-bottom:14px;
+  }
+  .brand{display:flex; align-items:center; gap:10px; font-weight:900;}
+  .logo{
+    width:40px;height:40px;border-radius:14px;
+    background: linear-gradient(135deg, rgba(124,58,237,1), rgba(34,197,94,1));
+    box-shadow: 0 14px 34px rgba(124,58,237,.35);
+    display:grid; place-items:center;
+  }
+  .badge{
+    font-size:12px; padding:6px 10px; border-radius:999px;
+    background: rgba(255,255,255,.08);
+    border: 1px solid var(--stroke);
+    color: var(--muted);
+  }
 
-    /* Groups list */
-    .groups{display:flex;flex-direction:column;gap:10px;margin-top:10px}
-    .groupCard{
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      border-radius:16px;
-      padding:12px;
-    }
-    .groupHead{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-    .groupHead b{font-size:15px}
-    .pill{
-      font-size:12px;padding:5px 10px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      color: var(--muted);
-    }
-    .miniBtn{
-      border:none;background:transparent;color:rgba(234,240,255,.92);
-      padding:6px 8px;border-radius:10px;cursor:pointer;
-    }
-    .miniBtn:hover{background: rgba(255,255,255,.07)}
-    .miniBtn.del{color: rgba(239,68,68,.92)}
-    .miniBtn.edit{color: rgba(245,158,11,.95)}
-    .miniBtn.add{color: rgba(34,197,94,.95)}
+  .grid{
+    display:grid;
+    grid-template-columns: 1.15fr .85fr;
+    gap:14px;
+  }
+  @media (max-width: 860px){
+    .grid{grid-template-columns:1fr}
+  }
 
-    .members{
-      margin-top:10px;
-      display:flex;flex-wrap:wrap;gap:8px;
-    }
-    .memberChip{
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.10);
-      display:flex; align-items:center; gap:8px;
-      max-width:100%;
-    }
-    .memberChip span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
-    .memberChip button{padding:4px 6px;border-radius:10px}
+  .card{
+    background: var(--card);
+    border: 1px solid var(--stroke);
+    border-radius: 18px;
+    padding: 14px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(10px);
+  }
 
-    /* stage */
-    .stage{
-      border-radius:18px;
-      border:1px solid rgba(255,255,255,.12);
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      padding:14px;
-      position:relative;
-      overflow:hidden;
-    }
-    .stage::before{
-      content:"";
-      position:absolute; inset:-40% -20%;
-      background: radial-gradient(circle at 30% 30%, rgba(124,58,237,.26), transparent 55%),
-                  radial-gradient(circle at 70% 45%, rgba(34,197,94,.22), transparent 55%);
-      filter: blur(12px);
-    }
-    .stage>*{position:relative}
-    .wheel{display:flex;align-items:center;justify-content:center;height:92px;margin:10px 0 8px}
-    .slot{
-      width:92px;height:92px;border-radius:26px;
-      background: rgba(17,24,39,.65);
-      border:1px solid rgba(255,255,255,.12);
-      display:grid;place-items:center;
-      box-shadow: 0 18px 40px rgba(0,0,0,.35);
-      font-size:44px;
-    }
-    .rolling .slot{animation:wobble .18s ease-in-out infinite alternate;}
-    @keyframes wobble{from{transform:rotate(-2deg) scale(1.01)}to{transform:rotate(2deg) scale(1.03)}}
-    .hint{text-align:center;color:var(--muted);font-size:13px}
-    .result{
-      margin-top:10px;padding:14px;border-radius:16px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.05);
-      min-height:72px;
-    }
-    .result.ok{border-color: rgba(34,197,94,.40); background: rgba(34,197,94,.10)}
-    .result.bad{border-color: rgba(239,68,68,.45); background: rgba(239,68,68,.10)}
-    .confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
-    .confetti i{
-      position:absolute; width:10px; height:16px; border-radius:4px;
-      opacity:.95; animation: fall 1100ms linear forwards;
-    }
-    @keyframes fall{to{transform: translateY(120vh) rotate(520deg);}}
+  h2{margin:0 0 8px; font-size:16px}
+  .sub{color:var(--muted); font-size:13px; margin-top:2px}
+  .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+  .row > *{flex:1}
+  .row .tight{flex:0 0 auto}
 
-    .kpi{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;}
-    .kpi .box{
-      flex:1;border-radius:16px;padding:10px 12px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.05);
-      min-width: 140px;
-    }
-    .kpi .box b{display:block;font-size:18px}
-    .kpi .box span{color:var(--muted);font-size:12px}
-    .toast{margin-top:10px;color:var(--muted);font-size:13px}
-  </style>
+  input, button, select{
+    font-size:16px;
+    border-radius: 14px;
+    padding: 11px 12px;
+    border: 1px solid var(--stroke);
+    background: rgba(255,255,255,.06);
+    color: var(--txt);
+    outline:none;
+  }
+  input::placeholder{color: rgba(234,240,255,.45)}
+  input:focus, select:focus{border-color: rgba(124,58,237,.55); box-shadow: 0 0 0 4px rgba(124,58,237,.18);}
+
+  .btn{
+    cursor:pointer;
+    font-weight:850;
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    transition: transform .06s ease, background .2s ease, border-color .2s ease;
+    user-select:none;
+  }
+  .btn:active{transform: scale(.99)}
+  .btn-primary{
+    background: linear-gradient(135deg, rgba(124,58,237,.92), rgba(124,58,237,.55));
+    border-color: rgba(124,58,237,.55);
+  }
+  .btn-green{
+    background: linear-gradient(135deg, rgba(34,197,94,.92), rgba(34,197,94,.50));
+    border-color: rgba(34,197,94,.55);
+  }
+  .btn-danger{
+    background: linear-gradient(135deg, rgba(239,68,68,.92), rgba(239,68,68,.50));
+    border-color: rgba(239,68,68,.55);
+  }
+  .btn-ghost{ background: rgba(255,255,255,.05); }
+  .btn[disabled]{opacity:.55; cursor:not-allowed}
+
+  .divider{height:1px; background: rgba(255,255,255,.10); margin:12px 0}
+
+  /* Chips */
+  .chips{display:flex; flex-wrap:wrap; gap:10px; margin-top:10px}
+  .chip{
+    padding:10px 12px;
+    border-radius: 999px;
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(255,255,255,.06);
+    cursor:pointer;
+    display:flex; align-items:center; gap:10px;
+    max-width: 100%;
+  }
+  .chip strong{font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width: 220px;}
+  .chip small{font-size:12px; color: var(--muted)}
+  .chip.selected{
+    border-color: rgba(124,58,237,.60);
+    background: rgba(124,58,237,.18);
+    box-shadow: 0 0 0 4px rgba(124,58,237,.14);
+  }
+  .chip.done{
+    border-color: rgba(34,197,94,.45);
+    background: rgba(34,197,94,.14);
+  }
+  .chip .miniBtn{
+    border:none; background: transparent; color: rgba(234,240,255,.85);
+    padding:6px 8px; border-radius: 10px; cursor:pointer;
+  }
+  .chip .miniBtn:hover{background: rgba(255,255,255,.07)}
+  .chip .miniBtn.del{color: rgba(239,68,68,.92)}
+  .chip .miniBtn.edit{color: rgba(245,158,11,.95)}
+
+  /* Stage */
+  .stage{
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,.12);
+    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+    padding: 14px;
+    position: relative;
+    overflow:hidden;
+  }
+  .stage::before{
+    content:"";
+    position:absolute; inset:-40% -20%;
+    background: radial-gradient(circle at 30% 30%, rgba(124,58,237,.26), transparent 55%),
+                radial-gradient(circle at 70% 45%, rgba(34,197,94,.22), transparent 55%);
+    filter: blur(12px);
+  }
+  .stage > *{position:relative}
+
+  .wheel{display:flex; align-items:center; justify-content:center; height: 92px; margin: 10px 0 8px;}
+  .slot{
+    width: 92px; height: 92px; border-radius: 26px;
+    background: rgba(17,24,39,.65);
+    border: 1px solid rgba(255,255,255,.12);
+    display:grid; place-items:center;
+    box-shadow: 0 18px 40px rgba(0,0,0,.35);
+    font-size: 44px;
+    transition: transform .12s ease;
+  }
+  .rolling .slot{animation: wobble .18s ease-in-out infinite alternate;}
+  @keyframes wobble{
+    from{transform: rotate(-2deg) scale(1.01)}
+    to{transform: rotate(2deg) scale(1.03)}
+  }
+  .hint{text-align:center; color: var(--muted); font-size: 13px;}
+
+  .result{
+    margin-top: 10px;
+    padding: 14px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,.12);
+    background: rgba(255,255,255,.05);
+    min-height: 72px;
+  }
+  .result.ok{border-color: rgba(34,197,94,.40); background: rgba(34,197,94,.10)}
+  .result.bad{border-color: rgba(239,68,68,.45); background: rgba(239,68,68,.10)}
+
+  .confetti{ position:absolute; inset:0; pointer-events:none; overflow:hidden;}
+  .confetti i{
+    position:absolute; width:10px; height:16px; border-radius:4px;
+    opacity:.95;
+    animation: fall 1100ms linear forwards;
+  }
+  @keyframes fall{
+    to{ transform: translateY(120vh) rotate(520deg); opacity: .95;}
+  }
+
+  .kpi{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;}
+  .kpi .box{
+    flex:1;
+    border-radius: 16px;
+    padding:10px 12px;
+    border:1px solid rgba(255,255,255,.12);
+    background: rgba(255,255,255,.05);
+    min-width: 140px;
+  }
+  .kpi .box b{display:block; font-size:18px}
+  .kpi .box span{color: var(--muted); font-size:12px}
+
+  .toast{margin-top:10px; color: var(--muted); font-size:13px;}
+
+  /* Groups output */
+  .groupsOut{
+    margin-top:10px;
+    border-radius:16px;
+    border:1px solid rgba(255,255,255,.12);
+    background: rgba(255,255,255,.05);
+    padding:12px;
+  }
+  .groupsOut h3{margin:0 0 8px; font-size:14px}
+  .groupsGrid{display:grid; grid-template-columns:1fr; gap:10px;}
+  .groupBox{
+    border:1px solid rgba(255,255,255,.12);
+    background: rgba(0,0,0,.10);
+    border-radius:14px;
+    padding:10px 12px;
+  }
+  .groupBox b{display:block; margin-bottom:6px}
+  .groupBox .m{color: rgba(234,240,255,.88); line-height:1.5}
+</style>
 </head>
-
 <body>
 <div class="wrap">
+
   <header>
     <div class="brand">
       <div class="logo"><span>🎲</span></div>
       <div>
         <div style="font-size:18px">Sorteando!</div>
-        <div class="sub">grupos • sala de aula • amigo oculto</div>
+        <div class="sub">bonitinho • offline • no celular</div>
       </div>
     </div>
     <div class="badge" id="status">sem sorteio</div>
   </header>
 
   <div class="grid">
-    <!-- GRUPOS -->
+
+    <!-- PARTICIPANTES -->
     <section class="card">
-      <h2>👥 Grupos</h2>
-      <div class="sub">Aqui você adiciona/edita/exclui <b>grupos</b>. Dentro de cada grupo, você coloca os membros.</div>
+      <h2>👥 Lista</h2>
+      <div class="sub">Toque num nome para selecionar (modo amigo oculto). Use ✏️ para editar e 🗑️ para excluir.</div>
 
       <div class="divider"></div>
 
       <div class="row">
-        <input id="novoGrupo" placeholder="Ex: Grupo 1 / Mesa A / Time Verde..." />
-        <button class="btn btn-primary tight" style="min-width:150px" id="btnAddGrupo">➕ Add grupo</button>
+        <input id="novoNome" placeholder="Digite um nome e toque em Adicionar"/>
+        <button class="btn btn-primary tight" style="min-width:140px" id="btnAdd">➕ Adicionar</button>
       </div>
 
       <div class="toast" id="msg"></div>
-      <div class="groups" id="groups"></div>
+
+      <div class="chips" id="chips"></div>
 
       <div class="divider"></div>
 
       <div class="row">
-        <button class="btn btn-ghost" id="btnExemplo">✨ Exemplo</button>
-        <button class="btn btn-danger" id="btnReset">🧨 Reset</button>
+        <button class="btn btn-ghost" id="btnExemplo">✨ Carregar lista exemplo</button>
+        <button class="btn btn-danger" id="btnReset">🧨 Resetar tudo</button>
       </div>
 
       <div class="kpi">
-        <div class="box"><b id="kG">0</b><span>grupos</span></div>
-        <div class="box"><b id="kM">0</b><span>membros</span></div>
+        <div class="box"><b id="kTotal">0</b><span>itens</span></div>
+        <div class="box"><b id="kRevelou">0</b><span>marcados (amigo oculto)</span></div>
       </div>
+
+      <div class="divider"></div>
+
+      <!-- NOVO: GERAR GRUPOS -->
+      <h2>🧩 Grupos aleatórios</h2>
+      <div class="sub">Escolha o tamanho do grupo (2, 3, 4, 5, 6… qualquer número) e gere grupos.</div>
+      <div class="row">
+        <select id="modoGrupo">
+          <option value="size">Tamanho do grupo</option>
+          <option value="count">Quantidade de grupos</option>
+        </select>
+        <input id="numGrupo" type="number" min="2" value="3" />
+      </div>
+      <div class="row">
+        <button class="btn btn-green" id="btnGrupos">🧩 GERAR GRUPOS</button>
+        <button class="btn btn-ghost" id="btnCopiar">📋 Copiar grupos</button>
+      </div>
+      <div class="groupsOut" id="groupsOut" style="display:none">
+        <h3 id="groupsTitle">Grupos</h3>
+        <div class="groupsGrid" id="groupsGrid"></div>
+      </div>
+
     </section>
 
-    <!-- SORTEIO -->
+    <!-- SORTEIO / REVELAÇÃO -->
     <section class="card">
-      <h2>🎯 Sorteios com grupos</h2>
-      <div class="sub">Você sorteia grupos, sorteia ordem, ou faz amigo oculto dentro de um grupo.</div>
+      <h2>🎲 Sorteio</h2>
+      <div class="sub">Escolha o modo e use “GERAR”. No amigo oculto, cada pessoa seleciona seu nome e revela.</div>
 
       <div class="divider"></div>
 
       <div class="row">
         <select id="modo">
-          <option value="grupo1">Sortear 1 grupo</option>
-          <option value="grupon">Sortear N grupos</option>
-          <option value="ordem">Ordem aleatória de grupos</option>
-          <option value="amigo">Amigo oculto (dentro de um grupo)</option>
+          <option value="amigo">Amigo oculto (ninguém tira a si mesmo)</option>
+          <option value="simples">Sorteio simples (1 ganhador)</option>
+          <option value="multi">Sorteio multi (N ganhadores)</option>
+          <option value="ordem">Ordem aleatória (embaralhar lista)</option>
         </select>
-        <input id="qtd" type="number" min="1" value="2" title="Quantidade (modo N grupos)" />
-      </div>
-
-      <div class="row">
-        <select id="grupoAlvo" title="Grupo para amigo oculto"></select>
+        <input id="qtd" type="number" min="1" value="3" title="Quantidade (modo multi)" />
       </div>
 
       <div class="divider"></div>
 
-      <div class="stage">
+      <div class="stage" id="stage">
         <div class="confetti" id="confetti"></div>
 
         <div class="row">
-          <button class="btn btn-green" id="btnSortear">🎰 SORTEAR (tchannn)</button>
+          <button class="btn btn-green" id="btnGerar">🎰 GERAR / SORTEAR (tchannn)</button>
         </div>
 
-        <div class="wheel" id="wheel"><div class="slot" id="slot">✨</div></div>
-        <div class="hint" id="hint"></div>
+        <div class="wheel" id="wheel">
+          <div class="slot" id="slot">✨</div>
+        </div>
+        <div class="hint" id="hint">No modo amigo: selecione seu nome e toque em “REVELAR”.</div>
+
+        <div class="divider"></div>
+
+        <div class="row">
+          <button class="btn btn-primary" id="btnRevelar" disabled>👀 REVELAR</button>
+          <button class="btn btn-ghost" id="btnOcultar" disabled>🧼 OCULTAR / PRÓXIMO</button>
+        </div>
 
         <div class="result" id="resultado">Aguardando…</div>
       </div>
 
       <div class="toast" id="toast2"></div>
     </section>
+
   </div>
 </div>
 
 <script>
 (() => {
   // ---------- Storage ----------
-  const KEY = "sorteando_grupos_v1";
-
-  let groups = []; // [{id, name, members:[{id,name}]}]
-
-  const el = (id)=>document.getElementById(id);
-  const statusEl = el("status");
-  const msgEl = el("msg");
-  const groupsEl = el("groups");
-  const slotEl = el("slot");
-  const wheelEl = el("wheel");
-  const resEl = el("resultado");
-  const hintEl = el("hint");
-  const toast2 = el("toast2");
-
-  const modoEl = el("modo");
-  const qtdEl = el("qtd");
-  const grupoAlvoEl = el("grupoAlvo");
-
-  const kG = el("kG");
-  const kM = el("kM");
-
-  const faces = ["🎁","✨","🎄","🎅","🧦","🦌","⭐","🔔","🎀","🎯","🏆","🎲","🧠"];
-
-  const uid = ()=> Math.random().toString(16).slice(2) + Date.now().toString(16);
-
-  const save = () => localStorage.setItem(KEY, JSON.stringify({groups, mode: modoEl.value, qtd: qtdEl.value, alvo: grupoAlvoEl.value}));
-  const load = () => {
+  const KEY = "sorteando_v2";
+  const saveState = () => {
+    const data = {
+      names,
+      selected,
+      revealed: Array.from(revealed),
+      drawReady,
+      mode: modoEl.value,
+      qtd: qtdEl.value,
+      groupsLast
+    };
+    localStorage.setItem(KEY, JSON.stringify(data));
+  };
+  const loadState = () => {
     try{
       const raw = localStorage.getItem(KEY);
       if(!raw) return false;
       const data = JSON.parse(raw);
-      if(!data || !Array.isArray(data.groups)) return false;
-      groups = data.groups;
-      modoEl.value = data.mode || "grupo1";
-      qtdEl.value = data.qtd || 2;
+      if(!data || !Array.isArray(data.names)) return false;
+      names = data.names;
+      selected = data.selected ?? null;
+      revealed = new Set(data.revealed || []);
+      drawReady = !!data.drawReady;
+      modoEl.value = data.mode || "amigo";
+      qtdEl.value = data.qtd || 3;
+      groupsLast = data.groupsLast || null;
       return true;
     }catch(e){ return false; }
   };
 
-  const setStatus = (t)=> statusEl.textContent = t;
-  const toast = (t)=>{
-    msgEl.textContent = t || "";
-    if(t) setTimeout(()=>{ if(msgEl.textContent===t) msgEl.textContent=""; }, 2200);
-  };
-  const toastRight = (t)=>{
-    toast2.textContent = t || "";
-    if(t) setTimeout(()=>{ if(toast2.textContent===t) toast2.textContent=""; }, 2600);
-  };
+  // ---------- Estado ----------
+  let names = [];
+  let selected = null;
+  let pairs = {};
+  let revealed = new Set();
+  let drawReady = false;
+  let groupsLast = null; // último resultado de grupos
 
-  const countMembers = () => groups.reduce((acc,g)=> acc + (g.members?.length||0), 0);
+  const faces = ["🎁","✨","🎄","🎅","🧦","🦌","🍬","⭐","🔔","🎀","🎯","🏆","🎲","🧠"];
 
+  // ---------- Elements ----------
+  const statusEl = document.getElementById("status");
+  const chipsEl = document.getElementById("chips");
+  const msgEl = document.getElementById("msg");
+  const slotEl = document.getElementById("slot");
+  const wheelEl = document.getElementById("wheel");
+  const hintEl = document.getElementById("hint");
+  const resEl = document.getElementById("resultado");
+  const btnRevelar = document.getElementById("btnRevelar");
+  const btnOcultar = document.getElementById("btnOcultar");
+  const btnGerar = document.getElementById("btnGerar");
+  const btnAdd = document.getElementById("btnAdd");
+  const novoNomeEl = document.getElementById("novoNome");
+
+  const kTotal = document.getElementById("kTotal");
+  const kRevelou = document.getElementById("kRevelou");
+
+  const modoEl = document.getElementById("modo");
+  const qtdEl = document.getElementById("qtd");
+
+  // grupos
+  const modoGrupoEl = document.getElementById("modoGrupo");
+  const numGrupoEl = document.getElementById("numGrupo");
+  const btnGrupos = document.getElementById("btnGrupos");
+  const btnCopiar = document.getElementById("btnCopiar");
+  const groupsOut = document.getElementById("groupsOut");
+  const groupsGrid = document.getElementById("groupsGrid");
+  const groupsTitle = document.getElementById("groupsTitle");
+
+  // ---------- Helpers ----------
+  function toast(text){
+    msgEl.textContent = text || "";
+    if(text){
+      setTimeout(()=>{ if(msgEl.textContent === text) msgEl.textContent=""; }, 2200);
+    }
+  }
+  function setStatus(text){ statusEl.textContent = text; }
   function updateKPIs(){
-    kG.textContent = groups.length;
-    kM.textContent = countMembers();
+    kTotal.textContent = names.length;
+    kRevelou.textContent = revealed.size;
   }
 
-  function renderGroupSelect(){
-    grupoAlvoEl.innerHTML = "";
-    const opt0 = document.createElement("option");
-    opt0.value = "";
-    opt0.textContent = "Selecione um grupo…";
-    grupoAlvoEl.appendChild(opt0);
+  function renderGroups(){
+    if(!groupsLast){ groupsOut.style.display="none"; return; }
+    groupsOut.style.display="block";
+    groupsGrid.innerHTML = "";
 
-    groups.forEach(g=>{
-      const o = document.createElement("option");
-      o.value = g.id;
-      o.textContent = `${g.name} (${g.members.length})`;
-      grupoAlvoEl.appendChild(o);
+    groupsTitle.textContent = groupsLast.title || "Grupos";
+
+    groupsLast.groups.forEach((g, idx)=>{
+      const box = document.createElement("div");
+      box.className = "groupBox";
+      const title = document.createElement("b");
+      title.textContent = `Grupo ${idx+1} (${g.length})`;
+      const body = document.createElement("div");
+      body.className = "m";
+      body.innerHTML = g.map(x=>`• ${escapeHtml(x)}`).join("<br>");
+      box.appendChild(title);
+      box.appendChild(body);
+      groupsGrid.appendChild(box);
     });
+  }
+
+  function escapeHtml(s){
+    return String(s)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
   }
 
   function render(){
-    groupsEl.innerHTML = "";
+    chipsEl.innerHTML = "";
+    names.forEach((n)=>{
+      const chip = document.createElement("div");
+      chip.className = "chip" +
+        (n === selected ? " selected":"") +
+        (revealed.has(n) ? " done":"");
 
-    groups.forEach(g=>{
-      const card = document.createElement("div");
-      card.className = "groupCard";
+      const left = document.createElement("div");
+      left.style.display="flex";
+      left.style.flexDirection="column";
+      left.style.gap="2px";
 
-      const head = document.createElement("div");
-      head.className = "groupHead";
+      const strong = document.createElement("strong");
+      strong.textContent = n;
 
-      const title = document.createElement("b");
-      title.textContent = g.name;
+      const small = document.createElement("small");
+      small.textContent = revealed.has(n) ? "marcado ✅" : "toque para selecionar";
 
-      const pill = document.createElement("span");
-      pill.className = "pill";
-      pill.textContent = `${g.members.length} membro(s)`;
+      left.appendChild(strong);
+      left.appendChild(small);
 
-      const btnAddM = document.createElement("button");
-      btnAddM.className = "miniBtn add";
-      btnAddM.textContent = "➕ membro";
-      btnAddM.onclick = ()=> addMember(g.id);
+      const actions = document.createElement("div");
+      actions.style.display="flex";
+      actions.style.gap="2px";
+      actions.style.marginLeft="8px";
 
-      const btnEdit = document.createElement("button");
-      btnEdit.className = "miniBtn edit";
-      btnEdit.textContent = "✏️";
-      btnEdit.title = "Editar grupo";
-      btnEdit.onclick = ()=> editGroup(g.id);
+      const edit = document.createElement("button");
+      edit.className = "miniBtn edit";
+      edit.type = "button";
+      edit.textContent = "✏️";
+      edit.title = "Editar";
+      edit.onclick = (e)=>{ e.stopPropagation(); editar(n); };
 
-      const btnDel = document.createElement("button");
-      btnDel.className = "miniBtn del";
-      btnDel.textContent = "🗑️";
-      btnDel.title = "Excluir grupo";
-      btnDel.onclick = ()=> delGroup(g.id);
+      const del = document.createElement("button");
+      del.className = "miniBtn del";
+      del.type = "button";
+      del.textContent = "🗑️";
+      del.title = "Excluir";
+      del.onclick = (e)=>{ e.stopPropagation(); excluir(n); };
 
-      head.appendChild(title);
-      head.appendChild(pill);
-      head.appendChild(btnAddM);
-      head.appendChild(btnEdit);
-      head.appendChild(btnDel);
+      actions.appendChild(edit);
+      actions.appendChild(del);
 
-      const membersBox = document.createElement("div");
-      membersBox.className = "members";
+      chip.appendChild(left);
+      chip.appendChild(actions);
 
-      g.members.forEach(m=>{
-        const chip = document.createElement("div");
-        chip.className = "memberChip";
-
-        const name = document.createElement("span");
-        name.textContent = m.name;
-
-        const eBtn = document.createElement("button");
-        eBtn.className = "miniBtn edit";
-        eBtn.textContent = "✏️";
-        eBtn.title = "Editar membro";
-        eBtn.onclick = ()=> editMember(g.id, m.id);
-
-        const dBtn = document.createElement("button");
-        dBtn.className = "miniBtn del";
-        dBtn.textContent = "🗑️";
-        dBtn.title = "Excluir membro";
-        dBtn.onclick = ()=> delMember(g.id, m.id);
-
-        chip.appendChild(name);
-        chip.appendChild(eBtn);
-        chip.appendChild(dBtn);
-        membersBox.appendChild(chip);
-      });
-
-      card.appendChild(head);
-      card.appendChild(membersBox);
-      groupsEl.appendChild(card);
+      chip.onclick = ()=> selecionar(n);
+      chipsEl.appendChild(chip);
     });
 
-    renderGroupSelect();
-    updateKPIs();
-    save();
-    updateHints();
-  }
-
-  function updateHints(){
     const mode = modoEl.value;
-    if(mode === "grupo1") hintEl.textContent = "Sorteia 1 grupo vencedor.";
-    else if(mode === "grupon") hintEl.textContent = "Sorteia N grupos vencedores.";
-    else if(mode === "ordem") hintEl.textContent = "Mostra a ordem aleatória dos grupos.";
-    else hintEl.textContent = "Amigo oculto: escolhe um grupo e faz pares dentro dele.";
-    qtdEl.disabled = (mode !== "grupon");
-    qtdEl.style.opacity = (mode === "grupon") ? "1" : ".55";
-    grupoAlvoEl.disabled = (mode !== "amigo");
-    grupoAlvoEl.style.opacity = (mode === "amigo") ? "1" : ".55";
+    qtdEl.disabled = (mode !== "multi");
+    qtdEl.style.opacity = (mode === "multi") ? "1" : ".55";
+
+    btnRevelar.disabled = !(drawReady && (mode !== "amigo" || selected));
+    btnOcultar.disabled = !drawReady;
+
+    if(mode === "amigo"){
+      hintEl.textContent = "Modo Amigo: selecione seu nome e clique REVELAR.";
+    } else if(mode === "simples"){
+      hintEl.textContent = "Sorteio simples: clique GERAR para sortear 1 ganhador.";
+    } else if(mode === "multi"){
+      hintEl.textContent = "Sorteio multi: clique GERAR para sortear N ganhadores.";
+    } else {
+      hintEl.textContent = "Ordem aleatória: clique GERAR para embaralhar e mostrar a ordem.";
+    }
+
+    updateKPIs();
+    renderGroups();
+    saveState();
   }
 
-  // -------- CRUD Groups --------
-  function addGroup(){
-    const name = el("novoGrupo").value.trim();
-    if(!name) return toast("Digite o nome do grupo 🙂");
-    if(groups.some(g=>g.name.toLowerCase() === name.toLowerCase())) return toast("Já existe um grupo com esse nome.");
-    groups.push({id: uid(), name, members: []});
-    el("novoGrupo").value = "";
-    setStatus("editando ✅");
+  function selecionar(n){
+    selected = (selected === n ? null : n);
+    resEl.className = "result";
+    resEl.textContent = drawReady ? "Pronto. Toque em REVELAR." : "Clique em GERAR primeiro.";
     render();
   }
 
-  function editGroup(gid){
-    const g = groups.find(x=>x.id===gid);
-    if(!g) return;
-    const novo = prompt("Editar grupo:", g.name);
+  function invalidateDraw(message){
+    drawReady = false;
+    pairs = {};
+    revealed = new Set();
+    selected = null;
+    setStatus("sem sorteio");
+    resEl.className="result";
+    resEl.textContent = message || "Gere o sorteio.";
+  }
+
+  // ---------- CRUD ----------
+  function adicionar(){
+    const v = novoNomeEl.value.trim();
+    if(!v) return toast("Digite um nome 🙂");
+    if(names.some(x=>x.toLowerCase() === v.toLowerCase())) return toast("Esse já existe.");
+    names.push(v);
+    novoNomeEl.value = "";
+    if(drawReady) invalidateDraw("Lista mudou. Gere de novo.");
+    render();
+  }
+
+  function editar(oldName){
+    const novo = prompt("Editar:", oldName);
     if(novo === null) return;
     const v = novo.trim();
     if(!v) return toast("Nome vazio não vale.");
-    if(groups.some(x=>x.id!==gid && x.name.toLowerCase()===v.toLowerCase())) return toast("Já existe outro grupo com esse nome.");
-    g.name = v;
+    if(names.some(x => x !== oldName && x.toLowerCase() === v.toLowerCase())) return toast("Já existe outro igual.");
+    names = names.map(x => x===oldName ? v : x);
+    if(selected === oldName) selected = v;
+    if(drawReady) invalidateDraw("Lista mudou. Gere de novo.");
     render();
   }
 
-  function delGroup(gid){
-    const g = groups.find(x=>x.id===gid);
-    if(!g) return;
-    if(!confirm(`Excluir o grupo "${g.name}"?`)) return;
-    groups = groups.filter(x=>x.id!==gid);
+  function excluir(n){
+    if(!confirm(`Excluir "${n}"?`)) return;
+    names = names.filter(x=>x!==n);
+    if(selected === n) selected = null;
+    if(drawReady) invalidateDraw("Lista mudou. Gere de novo.");
     render();
   }
 
-  // -------- CRUD Members --------
-  function addMember(gid){
-    const g = groups.find(x=>x.id===gid);
-    if(!g) return;
-    const nome = prompt(`Adicionar membro em "${g.name}":`);
-    if(nome === null) return;
-    const v = nome.trim();
-    if(!v) return toast("Nome vazio não vale.");
-    if(g.members.some(m=>m.name.toLowerCase()===v.toLowerCase())) return toast("Esse membro já existe nesse grupo.");
-    g.members.push({id: uid(), name: v});
-    render();
-  }
-
-  function editMember(gid, mid){
-    const g = groups.find(x=>x.id===gid);
-    if(!g) return;
-    const m = g.members.find(x=>x.id===mid);
-    if(!m) return;
-    const novo = prompt("Editar membro:", m.name);
-    if(novo === null) return;
-    const v = novo.trim();
-    if(!v) return toast("Nome vazio não vale.");
-    if(g.members.some(x=>x.id!==mid && x.name.toLowerCase()===v.toLowerCase())) return toast("Já existe outro igual nesse grupo.");
-    m.name = v;
-    render();
-  }
-
-  function delMember(gid, mid){
-    const g = groups.find(x=>x.id===gid);
-    if(!g) return;
-    const m = g.members.find(x=>x.id===mid);
-    if(!m) return;
-    if(!confirm(`Excluir "${m.name}"?`)) return;
-    g.members = g.members.filter(x=>x.id!==mid);
-    render();
-  }
-
-  function resetAll(){
-    if(!confirm("Resetar tudo?")) return;
-    groups = [];
+  function limparTudo(){
+    if(!confirm("Tem certeza? Isso apaga lista, sorteios e grupos.")) return;
+    names = [];
+    selected = null;
+    pairs = {};
+    revealed = new Set();
+    drawReady = false;
+    groupsLast = null;
     setStatus("sem sorteio");
     resEl.className="result";
     resEl.textContent="Aguardando…";
     render();
   }
 
-  function exemplo(){
-    groups = [
-      {id: uid(), name:"Grupo 1", members:[{id:uid(), name:"Ana"},{id:uid(), name:"Bruno"},{id:uid(), name:"Carla"}]},
-      {id: uid(), name:"Grupo 2", members:[{id:uid(), name:"Davi"},{id:uid(), name:"Elen"},{id:uid(), name:"Ferraz"}]},
-      {id: uid(), name:"Grupo 3", members:[{id:uid(), name:"Gi"},{id:uid(), name:"Hugo"},{id:uid(), name:"Ivanka"}]}
+  function carregarExemplo(){
+    names = [
+      "Ernandes","Seu Ernandes","Dona Elza","Bárbara","Sara","Davi",
+      "Ana Luiza","Juliana","Daniel","Théo","Elen","Álvaro","Sueli","Ferraz","Bia","Stefan"
     ];
-    setStatus("editando ✅");
+    selected = null;
+    pairs = {};
+    revealed = new Set();
+    drawReady = false;
+    groupsLast = null;
+    setStatus("sem sorteio");
     resEl.className="result";
-    resEl.textContent="Exemplo carregado. Agora escolha o modo e sorteie.";
+    resEl.textContent="Lista carregada. Agora gere o sorteio 🙂";
     render();
   }
 
-  // -------- sorteio UI --------
-  async function roll(){
-    wheelEl.classList.add("rolling");
-    let i=0;
-    const t = setInterval(()=>{ slotEl.textContent = faces[i++ % faces.length]; }, 70);
-    await new Promise(r=>setTimeout(r, 1050));
-    clearInterval(t);
-    wheelEl.classList.remove("rolling");
-    slotEl.textContent = "🎲";
+  // ---------- Random helpers ----------
+  function shuffle(arr){
+    const a = [...arr];
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
   }
 
-  function confetti(){
-    const host = el("confetti");
+  function makeDerangement(list){
+    for(let t=0;t<8000;t++){
+      const s = shuffle(list);
+      let ok = true;
+      for(let i=0;i<list.length;i++){
+        if(list[i] === s[i]) { ok=false; break; }
+      }
+      if(ok) return s;
+    }
+    return null;
+  }
+
+  // ---------- Confetti + Roll ----------
+  function confettiBoom(){
+    const host = document.getElementById("confetti");
     host.innerHTML="";
     const colors = ["#a78bfa","#34d399","#fbbf24","#60a5fa","#fb7185","#f472b6"];
-    for(let i=0;i<26;i++){
+    const count = 26;
+    for(let i=0;i<count;i++){
       const p = document.createElement("i");
       p.style.left = (Math.random()*100) + "vw";
       p.style.top = (-10 - Math.random()*30) + "px";
@@ -540,105 +650,219 @@
       p.style.height = (10 + Math.random()*14) + "px";
       host.appendChild(p);
     }
-    setTimeout(()=>host.innerHTML="", 1500);
+    setTimeout(()=>{ host.innerHTML=""; }, 1500);
   }
 
-  function makeDerangement(list){
-    for(let t=0;t<8000;t++){
-      const s = [...list].sort(()=>Math.random()-0.5);
-      let ok = true;
-      for(let i=0;i<list.length;i++){
-        if(list[i] === s[i]){ ok=false; break; }
-      }
-      if(ok) return s;
-    }
-    return null;
+  async function rollAnimation(){
+    wheelEl.classList.add("rolling");
+    let i=0;
+    const timer = setInterval(()=>{
+      slotEl.textContent = faces[i % faces.length];
+      i++;
+    }, 70);
+    await new Promise(r=>setTimeout(r, 1050));
+    clearInterval(timer);
+    wheelEl.classList.remove("rolling");
+    slotEl.textContent = "🎲";
   }
 
-  async function sortear(){
+  // ---------- Sorteio principal ----------
+  async function gerar(){
     const mode = modoEl.value;
-    if(groups.length < 1){
-      resEl.className="result bad";
-      resEl.textContent="Crie pelo menos 1 grupo.";
-      return;
-    }
-    if(mode === "amigo"){
-      const gid = grupoAlvoEl.value;
-      const g = groups.find(x=>x.id===gid);
-      if(!g){ resEl.className="result bad"; resEl.textContent="Selecione um grupo para amigo oculto."; return; }
-      if(g.members.length < 2){ resEl.className="result bad"; resEl.textContent="Esse grupo precisa de pelo menos 2 membros."; return; }
-    }
-
+    if(names.length < 2) return toast("Coloque pelo menos 2 itens.");
+    btnGerar.disabled = true;
     setStatus("sorteando...");
     resEl.className="result";
     resEl.textContent="Tchannn…";
-    await roll();
+    await rollAnimation();
 
-    if(mode === "grupo1"){
-      const g = groups[Math.floor(Math.random()*groups.length)];
-      resEl.className="result ok";
-      resEl.innerHTML = `🏆 <b>Grupo sorteado:</b><br><br><span style="font-size:22px;font-weight:900">${g.name}</span>`;
-      confetti(); setStatus("feito ✅"); return;
-    }
-
-    if(mode === "grupon"){
-      let n = parseInt(qtdEl.value||"1",10);
-      if(isNaN(n) || n<1) n = 1;
-      n = Math.min(n, groups.length);
-      const shuffled = [...groups].sort(()=>Math.random()-0.5).slice(0,n);
-      resEl.className="result ok";
-      resEl.innerHTML = `🏆 <b>${n} grupo(s) sorteado(s):</b><br><br>${shuffled.map(x=>`• <b>${x.name}</b>`).join("<br>")}`;
-      confetti(); setStatus("feito ✅"); return;
-    }
-
-    if(mode === "ordem"){
-      const order = [...groups].sort(()=>Math.random()-0.5);
-      resEl.className="result ok";
-      resEl.innerHTML = `📋 <b>Ordem dos grupos:</b><br><br>${order.map((x,i)=>`${i+1}. <b>${x.name}</b>`).join("<br>")}`;
-      confetti(); setStatus("feito ✅"); return;
-    }
-
-    // amigo oculto dentro do grupo
-    const gid = grupoAlvoEl.value;
-    const g = groups.find(x=>x.id===gid);
-    const people = g.members.map(m=>m.name);
-    const der = makeDerangement(people);
-    if(!der){
-      resEl.className="result bad";
-      resEl.textContent="Não consegui montar pares. Tente de novo.";
-      setStatus("falhou");
+    if(mode === "amigo"){
+      const der = makeDerangement(names);
+      if(!der){
+        btnGerar.disabled = false;
+        setStatus("falhou");
+        resEl.className="result bad";
+        resEl.textContent="Não consegui sortear sem alguém tirar a si mesmo. Tente de novo.";
+        return;
+      }
+      pairs = {};
+      names.forEach((n,idx)=> pairs[n] = der[idx]);
+      drawReady = true;
+      revealed = new Set();
+      selected = null;
+      setStatus("feito ✅");
+      resEl.className="result";
+      resEl.textContent="Amigo oculto pronto. Selecione seu nome e REVELE.";
+      confettiBoom();
+      btnGerar.disabled = false;
+      render();
       return;
     }
-    const pairs = {};
-    people.forEach((p,i)=> pairs[p] = der[i]);
 
-    // mostra pares em formato “um por vez”
-    // (na prática, você vai passar o celular e a pessoa procura o nome)
-    const list = people.map(p=>`• <b>${p}</b> → ${pairs[p]}`).join("<br>");
+    // modos que não precisam de "selected"
+    drawReady = true;
+    setStatus("feito ✅");
+
+    if(mode === "simples"){
+      const winner = names[Math.floor(Math.random()*names.length)];
+      resEl.className="result ok";
+      resEl.innerHTML = `🏆 <b>Ganhador(a):</b><br><br><span style="font-size:22px;font-weight:900">${escapeHtml(winner)}</span>`;
+      confettiBoom();
+    } else if(mode === "multi"){
+      let n = parseInt(qtdEl.value || "1", 10);
+      if(isNaN(n) || n<1) n = 1;
+      n = Math.min(n, names.length);
+      const winners = shuffle(names).slice(0, n);
+      resEl.className="result ok";
+      resEl.innerHTML = `🏆 <b>${n} ganhador(es):</b><br><br>${winners.map(w=>`• <b>${escapeHtml(w)}</b>`).join("<br>")}`;
+      confettiBoom();
+    } else {
+      const order = shuffle(names);
+      resEl.className="result ok";
+      resEl.innerHTML = `📋 <b>Ordem sorteada:</b><br><br>${order.map((w,i)=>`${i+1}. <b>${escapeHtml(w)}</b>`).join("<br>")}`;
+      confettiBoom();
+    }
+
+    btnGerar.disabled = false;
+    btnOcultar.disabled = false;
+    btnRevelar.disabled = true;
+    render();
+  }
+
+  function revelar(){
+    if(!drawReady){
+      resEl.className="result bad";
+      resEl.textContent="Gere primeiro.";
+      return;
+    }
+    if(modoEl.value !== "amigo"){
+      resEl.className="result";
+      resEl.textContent="Neste modo, o resultado já aparece ao clicar GERAR 🙂";
+      return;
+    }
+    if(!selected){
+      resEl.className="result bad";
+      resEl.textContent="Selecione seu nome.";
+      return;
+    }
+    if(revealed.has(selected)){
+      resEl.className="result bad";
+      resEl.textContent="Esse já revelou ✅";
+      return;
+    }
+    const friend = pairs[selected];
     resEl.className="result ok";
-    resEl.innerHTML = `🎁 <b>Amigo oculto no grupo:</b> <b>${g.name}</b><br><br><div style="font-size:14px;line-height:1.6">${list}</div>
-      <div style="margin-top:10px;color:rgba(234,240,255,.75);font-size:12px">Dica: se quiser “revelar por pessoa” (sem mostrar a lista inteira), eu adapto em 2 minutos.</div>`;
-    confetti(); setStatus("feito ✅");
+    resEl.innerHTML = `<b>${escapeHtml(selected)}</b>, seu amigo oculto é:<br><br>🎁 <span style="font-size:20px;font-weight:900">${escapeHtml(friend)}</span>`;
+    revealed.add(selected);
+    confettiBoom();
+    render();
   }
 
-  // -------- events --------
-  el("btnAddGrupo").addEventListener("click", addGroup);
-  el("novoGrupo").addEventListener("keydown", (e)=>{ if(e.key==="Enter") addGroup(); });
-
-  el("btnExemplo").addEventListener("click", exemplo);
-  el("btnReset").addEventListener("click", resetAll);
-
-  modoEl.addEventListener("change", ()=>{ updateHints(); save(); });
-  el("btnSortear").addEventListener("click", sortear);
-
-  // init
-  if(!load()){
-    exemplo();
+  function ocultar(){
+    resEl.className="result";
+    resEl.textContent = "Oculto. Próxima pessoa: selecione seu nome e revele.";
+    selected = null;
+    render();
   }
-  render();
-  updateHints();
 
-  // PWA SW
+  // ---------- NOVO: Grupos aleatórios ----------
+  function buildGroupsBySize(list, size){
+    const shuffled = shuffle(list);
+    const groups = [];
+    for(let i=0;i<shuffled.length;i+=size){
+      groups.push(shuffled.slice(i, i+size));
+    }
+    return groups;
+  }
+
+  function buildGroupsByCount(list, count){
+    const shuffled = shuffle(list);
+    const groups = Array.from({length: count}, ()=>[]);
+    shuffled.forEach((name, idx)=>{
+      groups[idx % count].push(name);
+    });
+    return groups;
+  }
+
+  function gerarGrupos(){
+    if(names.length < 2) return toast("Coloque pelo menos 2 itens.");
+    let n = parseInt(numGrupoEl.value || "2", 10);
+    if(isNaN(n) || n < 2) n = 2;
+
+    const mode = modoGrupoEl.value;
+    let groups;
+
+    if(mode === "size"){
+      if(n > names.length) n = names.length;
+      groups = buildGroupsBySize(names, n);
+      groupsLast = {
+        title: `Grupos por tamanho = ${n}`,
+        groups
+      };
+    } else {
+      if(n > names.length) n = names.length;
+      groups = buildGroupsByCount(names, n);
+      groupsLast = {
+        title: `Quantidade de grupos = ${n}`,
+        groups
+      };
+    }
+
+    setStatus("grupos ✅");
+    confettiBoom();
+    render();
+  }
+
+  async function copiarGrupos(){
+    if(!groupsLast) return toast("Gere grupos primeiro 🙂");
+    const text =
+      `${groupsLast.title}\n\n` +
+      groupsLast.groups.map((g, i)=>`Grupo ${i+1} (${g.length}):\n- ${g.join("\n- ")}\n`).join("\n");
+    try{
+      await navigator.clipboard.writeText(text);
+      toast("Copiado ✅");
+    }catch(e){
+      // fallback
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      ta.remove();
+      toast("Copiado ✅");
+    }
+  }
+
+  // ---------- Eventos ----------
+  btnAdd.addEventListener("click", adicionar);
+  novoNomeEl.addEventListener("keydown", (e)=>{ if(e.key === "Enter") adicionar(); });
+
+  document.getElementById("btnReset").addEventListener("click", limparTudo);
+  document.getElementById("btnExemplo").addEventListener("click", carregarExemplo);
+
+  btnGerar.addEventListener("click", gerar);
+  btnRevelar.addEventListener("click", revelar);
+  btnOcultar.addEventListener("click", ocultar);
+
+  modoEl.addEventListener("change", () => {
+    invalidateDraw("Modo mudou. Clique GERAR.");
+    render();
+  });
+
+  btnGrupos.addEventListener("click", gerarGrupos);
+  btnCopiar.addEventListener("click", copiarGrupos);
+
+  // ---------- Init ----------
+  if(!loadState()){
+    carregarExemplo();
+  } else {
+    resEl.className = "result";
+    resEl.textContent = drawReady ? "Pronto. Selecione seu nome (modo amigo) ou clique GERAR." : "Clique GERAR.";
+    setStatus(drawReady ? "pronto ✅" : "sem sorteio");
+    render();
+  }
+
+  // ---------- Service Worker ----------
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("service-worker.js").catch(()=>{});
   }
