@@ -96,6 +96,7 @@
     .btn[disabled]{opacity:.55; cursor:not-allowed}
     .divider{height:1px; background: rgba(255,255,255,.10); margin:12px 0}
 
+    /* chips */
     .chips{display:flex; flex-wrap:wrap; gap:10px; margin-top:10px}
     .chip{
       padding:10px 12px;
@@ -118,6 +119,7 @@
     .miniBtn.del{color: rgba(239,68,68,.92)}
     .miniBtn.edit{color: rgba(245,158,11,.95)}
 
+    /* stage */
     .stage{
       border-radius: 18px;
       border: 1px solid rgba(255,255,255,.12);
@@ -200,7 +202,7 @@
       <div class="divider"></div>
 
       <div class="row">
-        <input id="novoNome" placeholder="Ex: Maria / João / Tema A..." />
+        <input id="novoNome" placeholder="Ex: Maria / Grupo 1 / Tema A / João..." />
         <button class="btn btn-primary tight" style="min-width:140px" id="btnAdd">➕ Adicionar</button>
       </div>
 
@@ -222,8 +224,8 @@
 
     <!-- MODO / SORTEIO -->
     <section class="card">
-      <h2>🎯 Sorteio</h2>
-      <div class="sub">Amigo oculto, sorteio simples, multi ou ordem aleatória. E: grupos rápidos sem bagunçar nada 😉</div>
+      <h2>🎯 Modo do sorteio</h2>
+      <div class="sub">Escolha o tipo: amigo oculto, sorteio simples ou ordem aleatória.</div>
 
       <div class="divider"></div>
 
@@ -235,22 +237,6 @@
           <option value="ordem">Ordem aleatória (embaralhar lista)</option>
         </select>
         <input id="qtd" type="number" min="1" value="3" title="Quantidade (modo multi)" />
-      </div>
-
-      <!-- ✅ NOVO (SÓ ISSO): GRUPOS RÁPIDOS -->
-      <div class="divider"></div>
-      <div class="card" style="padding:12px; border-radius:16px; background: rgba(255,255,255,.04);">
-        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
-          <div>
-            <b>🧩 Grupos rápidos</b>
-            <div class="sub" style="margin-top:4px">Gera grupos aleatórios a partir da lista da esquerda. Ex: 2, 3, 4, 5…</div>
-          </div>
-        </div>
-        <div class="row" style="margin-top:10px">
-          <input id="tamGrupo" type="number" min="2" value="2" title="Tamanho do grupo" />
-          <button class="btn btn-green tight" style="min-width:170px" id="btnGrupos">🎯 GERAR GRUPOS</button>
-          <button class="btn btn-ghost tight" style="min-width:150px" id="btnCopiarGrupos" disabled>📋 COPIAR</button>
-        </div>
       </div>
 
       <div class="divider"></div>
@@ -292,8 +278,7 @@
       revealed: Array.from(revealed),
       drawReady,
       mode: modoEl.value,
-      qtd: qtdEl.value,
-      lastGroupsText
+      qtd: qtdEl.value
     };
     localStorage.setItem(KEY, JSON.stringify(data));
   };
@@ -309,7 +294,6 @@
       drawReady = !!data.drawReady;
       modoEl.value = data.mode || "amigo";
       qtdEl.value = data.qtd || 3;
-      lastGroupsText = data.lastGroupsText || "";
       return true;
     }catch(e){ return false; }
   };
@@ -320,9 +304,6 @@
   let pairs = {};
   let revealed = new Set();
   let drawReady = false;
-
-  // ✅ NOVO: guarda o último texto de grupos pra copiar
-  let lastGroupsText = "";
 
   const faces = ["🎁","✨","🎄","🎅","🧦","🦌","🍬","⭐","🔔","🎀","🎯","🏆","🎲","🧠"];
 
@@ -350,11 +331,6 @@
   const modoEl = document.getElementById("modo");
   const qtdEl = document.getElementById("qtd");
 
-  // ✅ grupos
-  const tamGrupoEl = document.getElementById("tamGrupo");
-  const btnGrupos = document.getElementById("btnGrupos");
-  const btnCopiarGrupos = document.getElementById("btnCopiarGrupos");
-
   // ---------- UI helpers ----------
   const toast = (text) => {
     msgEl.textContent = text || "";
@@ -370,10 +346,6 @@
     kTotal.textContent = names.length;
     kDone.textContent = revealed.size;
   };
-
-  const escapeHtml = (s) => String(s)
-    .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;").replaceAll("'","&#039;");
 
   function render(){
     chipsEl.innerHTML = "";
@@ -448,9 +420,6 @@
     qtdEl.style.opacity = (mode === "multi") ? "1" : ".55";
     qtdEl.disabled = (mode !== "multi");
 
-    // copiar grupos habilita quando existir texto
-    btnCopiarGrupos.disabled = !lastGroupsText;
-
     updateKPIs();
     saveState();
   }
@@ -470,9 +439,6 @@
     names.push(v);
     novoNomeEl.value = "";
 
-    // não invalidar grupos (grupos são independentes), mas limpar texto copiado
-    lastGroupsText = "";
-
     if(drawReady){ invalidateDraw("Lista mudou. Gere de novo."); }
     render();
   }
@@ -487,8 +453,6 @@
     names = names.map(x => x===oldName ? v : x);
     if(selected === oldName) selected = v;
 
-    lastGroupsText = "";
-
     if(drawReady){ invalidateDraw("Lista mudou. Gere de novo."); }
     render();
   }
@@ -497,8 +461,6 @@
     if(!confirm(`Excluir "${n}"?`)) return;
     names = names.filter(x=>x!==n);
     if(selected === n) selected = null;
-
-    lastGroupsText = "";
 
     if(drawReady){ invalidateDraw("Lista mudou. Gere de novo."); }
     render();
@@ -511,7 +473,6 @@
     pairs = {};
     revealed = new Set();
     drawReady = false;
-    lastGroupsText = "";
     setStatus("sem sorteio");
     resEl.className="result";
     resEl.textContent="Aguardando…";
@@ -524,7 +485,6 @@
       "Ana Luiza","Juliana","Daniel","Théo","Elen","Álvaro","Sueli","Ferraz","Bia","Stefan"
     ];
     selected = null;
-    lastGroupsText = "";
     invalidateDraw("Exemplo carregado. Gere o sorteio.");
     render();
   }
@@ -541,6 +501,7 @@
 
   // ---------- Draw logic ----------
   function makeDerangement(list){
+    // used for amigo oculto
     for(let t=0;t<8000;t++){
       const s = [...list].sort(()=>Math.random()-0.5);
       let ok = true;
@@ -611,6 +572,7 @@
       resEl.textContent = "Sorteio de amigo oculto pronto. Selecione seu nome e REVELE.";
       confettiBoom();
     } else {
+      // outros modos: apenas marca pronto (revelar fará o sorteio)
       drawReady = true;
       revealed = new Set();
       selected = null;
@@ -624,9 +586,10 @@
   }
 
   function revealSimple(){
+    // 1 ganhador
     const winner = names[Math.floor(Math.random()*names.length)];
     resEl.className="result ok";
-    resEl.innerHTML = `🏆 <b>Ganhador(a):</b><br><br><span style="font-size:22px;font-weight:900">${escapeHtml(winner)}</span>`;
+    resEl.innerHTML = `🏆 <b>Ganhador(a):</b><br><br><span style="font-size:22px;font-weight:900">${winner}</span>`;
     confettiBoom();
   }
 
@@ -639,14 +602,14 @@
     const winners = shuffled.slice(0, n);
 
     resEl.className="result ok";
-    resEl.innerHTML = `🏆 <b>${n} ganhador(es):</b><br><br>${winners.map(w=>`• <b>${escapeHtml(w)}</b>`).join("<br>")}`;
+    resEl.innerHTML = `🏆 <b>${n} ganhador(es):</b><br><br>${winners.map(w=>`• <b>${w}</b>`).join("<br>")}`;
     confettiBoom();
   }
 
   function revealOrder(){
     const order = [...names].sort(()=>Math.random()-0.5);
     resEl.className="result ok";
-    resEl.innerHTML = `📋 <b>Ordem sorteada:</b><br><br>${order.map((w,i)=>`${i+1}. <b>${escapeHtml(w)}</b>`).join("<br>")}`;
+    resEl.innerHTML = `📋 <b>Ordem sorteada:</b><br><br>${order.map((w,i)=>`${i+1}. <b>${w}</b>`).join("<br>")}`;
     confettiBoom();
   }
 
@@ -672,7 +635,7 @@
       }
       const friend = pairs[selected];
       resEl.className="result ok";
-      resEl.innerHTML = `<b>${escapeHtml(selected)}</b>, seu amigo oculto é:<br><br>🎁 <span style="font-size:20px;font-weight:900">${escapeHtml(friend)}</span>`;
+      resEl.innerHTML = `<b>${selected}</b>, seu amigo oculto é:<br><br>🎁 <span style="font-size:20px;font-weight:900">${friend}</span>`;
       revealed.add(selected);
       confettiBoom();
       render();
@@ -691,77 +654,6 @@
     render();
   }
 
-  // ✅ GRUPOS: independente do “modo”
-  function shuffle(arr){
-    const a = [...arr];
-    for(let i=a.length-1;i>0;i--){
-      const j = Math.floor(Math.random()*(i+1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  }
-
-  async function gerarGrupos(){
-    if(names.length < 2){
-      resEl.className="result bad";
-      resEl.textContent="Coloque pelo menos 2 nomes para formar grupos.";
-      return;
-    }
-
-    let size = parseInt(tamGrupoEl.value || "2", 10);
-    if(isNaN(size) || size < 2) size = 2;
-    if(size > names.length) size = names.length;
-
-    // faz o “tchannn” igual
-    setStatus("agrupando...");
-    resEl.className="result";
-    resEl.textContent="Tchannn… montando grupos!";
-    await rollAnimation();
-
-    const list = shuffle(names);
-    const groups = [];
-    for(let i=0;i<list.length;i+=size){
-      groups.push(list.slice(i, i+size));
-    }
-
-    // texto para copiar
-    lastGroupsText =
-      `Grupos (tamanho ${size})\n\n` +
-      groups.map((g, i)=>`Grupo ${i+1} (${g.length}):\n- ${g.join("\n- ")}\n`).join("\n");
-
-    // mostra bonitinho no mesmo resultado
-    resEl.className="result ok";
-    resEl.innerHTML =
-      `🧩 <b>Grupos gerados (tamanho ${size}):</b><br><br>` +
-      groups.map((g,i)=>(
-        `<div style="margin:10px 0; padding:10px 12px; border:1px solid rgba(255,255,255,.12); border-radius:14px; background: rgba(0,0,0,.10)">
-          <b>Grupo ${i+1} (${g.length})</b><br>
-          ${g.map(x=>`• <b>${escapeHtml(x)}</b>`).join("<br>")}
-        </div>`
-      )).join("");
-
-    confettiBoom();
-    setStatus("feito ✅");
-    render();
-  }
-
-  async function copiarGrupos(){
-    if(!lastGroupsText) return toastRight("Gere os grupos primeiro 🙂");
-    try{
-      await navigator.clipboard.writeText(lastGroupsText);
-      toastRight("Copiado ✅");
-    }catch(e){
-      const ta = document.createElement("textarea");
-      ta.value = lastGroupsText;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand("copy");
-      ta.remove();
-      toastRight("Copiado ✅");
-    }
-    render();
-  }
-
   // ---------- Events ----------
   btnAdd.addEventListener("click", adicionar);
   novoNomeEl.addEventListener("keydown", (e)=>{ if(e.key === "Enter") adicionar(); });
@@ -773,10 +665,6 @@
   btnRevelar.addEventListener("click", revelar);
   btnOcultar.addEventListener("click", ocultar);
 
-  // ✅ grupos
-  btnGrupos.addEventListener("click", gerarGrupos);
-  btnCopiarGrupos.addEventListener("click", copiarGrupos);
-
   modoEl.addEventListener("change", () => {
     invalidateDraw("Modo mudou. Clique GERAR.");
     render();
@@ -786,13 +674,14 @@
   if(!loadState()){
     loadExample();
   } else {
+    // se carregar do storage e tiver modo, deixa consistente
     resEl.className = "result";
     resEl.textContent = drawReady ? "Pronto. Clique REVELAR." : "Clique GERAR.";
     setStatus(drawReady ? "pronto ✅" : "sem sorteio");
   }
   render();
 
-  // ---------- Service Worker register ----------
+  // ---------- Service Worker register (CORRETO) ----------
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("service-worker.js").catch(()=>{});
   }
